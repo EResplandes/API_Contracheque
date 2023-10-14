@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Funcionario;
+
 return [
 
     /*
@@ -40,6 +42,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'funcionarios',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -64,11 +71,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'funcionarios' => [
+            'driver' => 'eloquent',
+            'model'=> App\Models\Funcionario::class,
+        ]
     ],
 
     /*
