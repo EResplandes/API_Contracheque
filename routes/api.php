@@ -20,6 +20,8 @@ Route::prefix('autenticacao')->group(function(){
     Route::post('/logout', [AutenticacaoController::class, 'logout'])->name('logout');
     Route::post('/refresh', [AutenticacaoController::class, 'refresh'])->name('refresh');
     Route::post('/me', [AutenticacaoController::class, 'me'])->name('me');
-
-
 });
+
+// Route::prefix('cadastro')->middleware('jwt.autenticacao')->group(function(){
+//     Route::post('/funcionario');
+// });
