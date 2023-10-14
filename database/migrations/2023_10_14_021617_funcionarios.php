@@ -13,7 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('funcionarios', function (Blueprint $table) {
+            $table->id();
+            $table->string('nome_completo');
+            $table->string('cpf')->unique();
+            $table->string('password');
+            $table->string('tipo_usuario');
+            $table->unsignedBigInteger('fk_empresa');
+            $table->foreign('fk_empresa')->references('id')->on('empresas');
+            $table->timestamps();
+        });
     }
 
     /**

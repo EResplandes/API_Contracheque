@@ -13,7 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('empresas', function (Blueprint $table) {
+            $table->id();
+            $table->string('nome_empresa')->unique();
+        });
     }
 
     /**
