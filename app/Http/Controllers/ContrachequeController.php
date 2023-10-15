@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\Contracheque;
-
 use Illuminate\Http\Request;
+use App\Mail\ContrachequeEnviadoMail;
+use Illuminate\Support\Facades\Mail;
+
 
 class ContrachequeController extends Controller
 {
@@ -69,10 +71,15 @@ class ContrachequeController extends Controller
                 'ano' => $request->input('ano'),
                 'status' => '0',
                 'diretorio' => $urn_contracheque,
-                'fk_funcionario' => '7',
+                'fk_funcionario' => $request->input('fk_funcionario'),
             ];
 
+            $email = DB::table('funcionarios')->where('id', $request->input('fk_funcionario'))->select('email')->get(); // Pegando o e-mail para enviar notificação
+
             DB::table('contracheques')->insert($dados); // Inserindo os dados no bando de dados
+
+            
+            Mail::to($email)->send(new ContrachequeEnviadoMail($mes, $ano));
 
             return response()->json(['Mensagem' => 'Contracheque cadastrado com sucesso!']); // Retornando a resposta para a requisição
 

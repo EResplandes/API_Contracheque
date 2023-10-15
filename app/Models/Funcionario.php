@@ -49,6 +49,7 @@ class Funcionario extends Authenticatable implements JWTSubject
     public function rules(){
         return [
             'nome_completo' => 'required|string|unique:funcionarios',
+            'email' => 'string|unique:funcionarios|required',
             'cpf' => 'required|string|unique:funcionarios',
             'password' => 'required|string',
             'tipo_usuario' => 'required|string',
@@ -61,6 +62,9 @@ class Funcionario extends Authenticatable implements JWTSubject
             'nome_completo.required' => 'O campo "nome_completo" é obrigatório!',
             'nome_completo.string' => 'O campo "nome_completo" deve ser um texto!',
             'nome_completo.unique' => 'O funcionário já está cadastrado!',
+            'email.required' => 'O campo "email" é obrigatório!',
+            'email.string' => 'O campo "email" deve ser um texto!',
+            'email.unique' => 'O email já está cadastrado!',
             'cpf.required' => 'O campo "CPF" é obrigatório!',
             'cpf.string' => 'O campo "CPF" deve ser um texto por conta do . e -!',
             'cpf.unique' => 'O cpf ja está cadastrado!',

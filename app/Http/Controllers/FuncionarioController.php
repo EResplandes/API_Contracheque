@@ -51,6 +51,7 @@ class FuncionarioController extends Controller
                 // Armazenando as informações do request no array
                 $dados = [
                     'nome_completo' => strtoupper($request->input('nome_completo')),
+                    'email' => $request->input('email'),
                     'cpf' => $request->input('cpf'),
                     'password' => Hash::make($senha),
                     'tipo_usuario' => strtoupper($request->input('tipo_usuario')),
