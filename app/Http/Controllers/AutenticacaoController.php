@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class AutenticacaoController extends Controller
 {
+
     public function login(Request $request){
 
         $credenciais = $request->only('cpf', 'password'); // Pegando dados vindo do request
@@ -20,11 +21,11 @@ class AutenticacaoController extends Controller
 
             $dados = DB::table('funcionarios')->where('cpf', $cpf)->get(); // Pegando os dados do usuário de acordo com o CPF
 
-            return response()->json(['Token: ' => $token, ['Dados do Funcionario: ' => $dados]], 422); // Retornando os dados e o token
+            return response()->json(['Token: ' => $token, 'Dados do Funcionário: ', $dados], 200); // Retornando os dados e o token
 
         } else {
 
-            return response()->json(['Erro:' => 'Usuário ou senha inválidos!'], 403); // Retornando responsa de erro no usuário
+            return response()->json(['Erro:' => 'Usuário ou senha inválidos!'], 401); // Retornando responsa de erro no usuário
 
         }
 
