@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\FuncionarioController;
+use App\Http\Controllers\ContrachequeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +42,8 @@ Route::prefix('funcionario')->middleware('jwt.autenticacao')->group(function(){
     Route::put('/edita/{id}', [FuncionarioController::class, 'edita'])->name('funcionario-edita');
 });
 
+Route::prefix('contracheque')->middleware('jwt.autenticacao')->group(function(){
+    Route::get('/', [ContrachequeController::class, 'index'])->name('contracheque-index');
+    Route::get('/busca/{id}', [ContrachequeController::class, 'busca'])->name('contracheque-busca');
+    Route::post('/cadastro', [ContrachequeController::class, 'cadastro'])->name('contracheque-cadsatro');
+});
