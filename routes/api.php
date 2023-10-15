@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\FuncionarioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,12 @@ Route::prefix('empresa')->middleware('jwt.autenticacao')->group(function(){
     Route::put('/edita/{id}', [EmpresaController::class, 'edita'])->name('empresa-edita');
 });
 
-// Route::prefix('cadastro')->middleware('jwt.autenticacao')->group(function(){
-//     Route::post('/funcionario');
-// });
+Route::prefix('funcionario')->middleware('jwt.autenticacao')->group(function(){
+    Route::get('/', [FuncionarioController::class, 'index'])->name('funcionario-index');
+    Route::post('/cadastro', [FuncionarioController::class, 'cadastro'])->name('funcionario-cadastro');
+    Route::delete('/deleta/{id}', [FuncionarioController::class, 'deleta'])->name('funcionario-deleta');
+    Route::put('/desativa/{id}', [FuncionarioController::class, 'desativa'])->name('funcionario-desativa');
+    Route::get('/busca/{id}', [FuncionarioController::class, 'busca'])->name('funcionario-busca');
+    Route::put('/edita/{id}', [FuncionarioController::class, 'edita'])->name('funcionario-edita');
+});
+
