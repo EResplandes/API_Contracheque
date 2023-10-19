@@ -79,7 +79,7 @@ class ContrachequeController extends Controller
             DB::table('contracheques')->insert($dados); // Inserindo os dados no bando de dados
 
             
-            Mail::to($email)->send(new ContrachequeEnviadoMail($mes, $ano));
+            Mail::to($email)->send(new ContrachequeEnviadoMail($mes, $ano)); // Enviando o e-mail e pessando os parametros de mes e ano
 
             return response()->json(['Mensagem' => 'Contracheque cadastrado com sucesso!']); // Retornando a resposta para a requisição
 

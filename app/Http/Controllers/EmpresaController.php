@@ -21,8 +21,7 @@ class EmpresaController extends Controller
     public function index()
     {
 
-       $dados =  DB::table('empresas')->
-       get(); // Pegando os dados de todas empresas
+       $dados =  DB::table('empresas')->orderBy('id', 'asc')->get(); // Pegando os dados de todas empresas
 
        return response()->json(['Empresas: ' => $dados]); // Retorando a resposta para a requisição
 
@@ -37,7 +36,7 @@ class EmpresaController extends Controller
         // Se as informações passarem pelas validações ele registra no banco e retorna a mensagem de registrado com sucesso!
         if ($validator->fails()){
 
-            return response()->json(['Erro: ' => $validator->errors()], 422); // Retornando o erro para a requisição
+            return response()->json(['Erro' => $validator->errors()], 422); // Retornando o erro para a requisição
 
         } else {
 
@@ -48,7 +47,7 @@ class EmpresaController extends Controller
 
             DB::table('empresas')->insert($dados); // Inserindo no banco de dados
 
-            return response()->json(['Mensagem: ' => 'Cadastro realizado com sucesso!']); // Retornando a respota de sucesso para a requisição
+            return response()->json(['Mensagem' => 'Cadastro realizado com sucesso!']); // Retornando a respota de sucesso para a requisição
 
         }
 
