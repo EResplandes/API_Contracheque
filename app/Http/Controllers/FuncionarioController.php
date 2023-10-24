@@ -26,7 +26,7 @@ class FuncionarioController extends Controller
         // Query para buscar todos os dados com os funcionários e sua respectiva empresa
         $dados = DB::table('funcionarios')
         ->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
-        ->select('funcionarios.id', 'funcionarios.nome_completo', 'funcionarios.cpf', 'funcionarios.tipo_usuario', 'empresas.nome_empresa')
+        ->select('funcionarios.id', 'funcionarios.nome_completo', 'funcionarios.cpf', 'funcionarios.tipo_usuario', 'funcionarios.email','empresas.nome_empresa')
         ->get();
 
         return response()->json(['Dados:' => $dados]); // Retornando a resposta para a requisição com dados de cada funcionário
@@ -207,4 +207,3 @@ class FuncionarioController extends Controller
     }
 
 }
-
