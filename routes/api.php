@@ -31,6 +31,7 @@ Route::prefix('empresa')->middleware('jwt.autenticacao')->group(function(){
     Route::delete('/deleta/{id}', [EmpresaController::class, 'deleta'])->name('empresa-deleta');
     Route::get('/busca/{id}', [EmpresaController::class, 'busca'])->name('empresa-busca');
     Route::put('/edita/{id}', [EmpresaController::class, 'edita'])->name('empresa-edita');
+    Route::post('/filtro', [EmpresaController::class, 'filtro'])->name('empresa-filtro');
 });
 
 Route::prefix('funcionario')->middleware('jwt.autenticacao')->group(function(){

@@ -9,21 +9,22 @@ use Illuminate\Support\Facades\Validator;
 
 
 class EmpresaController extends Controller
-{   
+{
 
     protected $empresa;
 
     public function __construct(Empresa $empresa)
     {
+
         $this->empresa = $empresa;
     }
-        
+
     public function index()
     {
 
-       $dados =  DB::table('empresas')->orderBy('id', 'asc')->get(); // Pegando os dados de todas empresas
+        $dados =  DB::table('empresas')->orderBy('id', 'asc')->get(); // Pegando os dados de todas empresas
 
-       return response()->json(['Empresas: ' => $dados]); // Retorando a resposta para a requisição
+        return response()->json(['Empresas: ' => $dados]); // Retorando a resposta para a requisição
 
     }
 
@@ -34,7 +35,7 @@ class EmpresaController extends Controller
         $validator = Validator::make($request->all(), $this->empresa->rules(), $this->empresa->feedback());
 
         // Se as informações passarem pelas validações ele registra no banco e retorna a mensagem de registrado com sucesso!
-        if ($validator->fails()){
+        if ($validator->fails()) {
 
             return response()->json(['Erro' => $validator->errors()], 422); // Retornando o erro para a requisição
 
@@ -50,20 +51,19 @@ class EmpresaController extends Controller
             return response()->json(['Mensagem' => 'Cadastro realizado com sucesso!']); // Retornando a respota de sucesso para a requisição
 
         }
-
     }
 
     public function deleta($id = null)
-    {   
+    {
 
-        if(is_null($id)){
+        if (is_null($id)) {
 
             return response()->json(['Erro: ' => 'O id é obrigatório']); // Verficando se o id está vazio
 
-        } elseif(!is_numeric($id)){
+        } elseif (!is_numeric($id)) {
 
             return response()->json(['Erro>=: ' => 'O id deve ser um interio!']); // Verficando se o id é um inteiro
-            
+
         } else {
 
             DB::table('empresas')->where('id', $id)->delete(); // Deletando a empresa de acordo com id
@@ -71,17 +71,16 @@ class EmpresaController extends Controller
             return response()->json(['Mensagem: ' => 'Empresa deletada com sucesso!']); // Retornando resposa para a requisição
 
         }
-
     }
 
     public function busca($id)
     {
 
-        if(is_null($id)){
+        if (is_null($id)) {
 
             return response()->json(['Erro:' => 'O id é obrigatório']); // Verificando se o id está vazio
 
-        } elseif(!is_numeric($id)){
+        } elseif (!is_numeric($id)) {
 
             return response()->json(['Erro:' => 'O id deve ser um interio!']); // Verificando se o id é um inteiro
 
@@ -92,17 +91,16 @@ class EmpresaController extends Controller
             return response()->json(['Dados: ' => $dados]); // Retornando os dados para a requisição
 
         }
-
     }
 
     public function edita(Request $request, $id)
     {
 
-        if(is_null($id)){
+        if (is_null($id)) {
 
             return response()->json(['Erro:' => 'O id é obrigatório!']); // Vericando se o id está vazio
 
-        } elseif (!is_numeric($id)){
+        } elseif (!is_numeric($id)) {
 
             return response()->json(['Erro>' => 'O id deve ser um inteiro']); // Verificando se o id é um inteiro
 
@@ -112,7 +110,7 @@ class EmpresaController extends Controller
             $validator = Validator::make($request->all(), $this->empresa->rules(), $this->empresa->feedback());
 
             // Se as informações passarem pelas validações ele registra no banco e retorna a mensagem de registrado com sucesso!
-            if ($validator->fails()){
+            if ($validator->fails()) {
 
                 return response()->json(['Erro: ' => $validator->errors()], 422); // Retornando o erro para a requisição
 
@@ -127,13 +125,27 @@ class EmpresaController extends Controller
 
                 return response()->json(['Mensagem: ' => 'Dados atualizados com sucesso!']); // Retornando a respota de sucesso para a requisição
 
+            }
         }
-
-        }
-
-        
-
     }
 
-}
+    public function filtro(Request $request)
+    {
 
+            $nome_empresa = $request->input('nome_empresa');
+
+            $query = DB::table('empresas');
+
+            // Aplicar filtros com base nos valores fornecidos
+            if ($nome_empresa) {
+                $query->where('nome_empresa', 'LIKE', '%' . $nome_empresa . '%');
+            }
+
+            // Execute a consulta e obtenha os resultados
+            $resultados = $query->get();
+
+            // Retorne os resultados para a visualização
+            return response()->json(['Empresas: ' => $resultados]);
+
+    }
+}
