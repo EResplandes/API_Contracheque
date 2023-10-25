@@ -51,7 +51,6 @@ class Funcionario extends Authenticatable implements JWTSubject
             'nome_completo' => 'required|string|unique:funcionarios',
             'email' => 'string|unique:funcionarios|required',
             'cpf' => 'required|string|unique:funcionarios',
-            'password' => 'required|string',
             'tipo_usuario' => 'required|string',
             'fk_empresa' => 'required|integer'
         ];
@@ -68,7 +67,6 @@ class Funcionario extends Authenticatable implements JWTSubject
             'cpf.required' => 'O campo "CPF" é obrigatório!',
             'cpf.string' => 'O campo "CPF" deve ser um texto por conta do . e -!',
             'cpf.unique' => 'O cpf ja está cadastrado!',
-            'password.required' => 'O campo "password" é obrigatório!',
             'tipo_usuario.required' => 'O campo "tipo_usuario" é obrigatório!',
             'tipo_usuario.string' => 'O campo "tipo usuario" deve ser um texto!',
             'fk_empresa.requird' => 'O campo "fk_empresa" é obrigatório!',

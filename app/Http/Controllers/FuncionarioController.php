@@ -7,8 +7,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\Funcionario;
 use Illuminate\Support\Facades\Hash;
-
-
+use Illuminate\Support\Str;
+use App\Mail\EnvioSenhaProvisoriaMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class FuncionarioController extends Controller
@@ -17,7 +18,7 @@ class FuncionarioController extends Controller
     protected $funcionario;
 
     public function __construct(Funcionario $funcionario)
-    {
+    {   
         $this->funcionario = $funcionario;
     }
     
@@ -45,8 +46,12 @@ class FuncionarioController extends Controller
                 return response()->json(['Erro: ' => $validator->errors()], 422); // Retornando o erro para a requisição
     
            } else {
-
-                $senha = $request->input('password');
+                
+                $tamanhoSenha = 10; // Defina o comprimento da cadeia desejado
+                
+                $email = $request->input('email');
+                $cpf = $request->input('cpf');
+                $senha = Str::random($tamanhoSenha);
 
                 // Armazenando as informações do request no array
                 $dados = [
@@ -57,6 +62,8 @@ class FuncionarioController extends Controller
                     'tipo_usuario' => strtoupper($request->input('tipo_usuario')),
                     'fk_empresa' => $request-> input('fk_empresa')
                 ];
+
+                Mail::to($email)->send(new EnvioSenhaProvisoriaMail($cpf, $senha)); // Enviando o e-mail e pessando os parametros de cpf e senha
     
                 DB::table('funcionarios')->insert($dados); // Inserindo no banco de dados
     
@@ -101,7 +108,7 @@ class FuncionarioController extends Controller
         } else {
 
             $dados = [
-                'tipo_usuario' => 'DESATIVADO',
+                'tipo_usuario' => 'Desativado',
             ];
 
             DB::table('funcionarios')->where('id', $id)->update($dados); // Atualizando o status do funcionário para desativado
