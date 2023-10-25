@@ -41,6 +41,7 @@ Route::prefix('funcionario')->middleware('jwt.autenticacao')->group(function(){
     Route::put('/desativa/{id}', [FuncionarioController::class, 'desativa'])->name('funcionario-desativa');
     Route::get('/busca/{id}', [FuncionarioController::class, 'busca'])->name('funcionario-busca');
     Route::put('/edita/{id}', [FuncionarioController::class, 'edita'])->name('funcionario-edita');
+    Route::post('/filtro', [FuncionarioController::class, 'filtro'])->name('funcionario-filtro');
 });
 
 Route::prefix('contracheque')->middleware('jwt.autenticacao')->group(function(){
