@@ -233,9 +233,10 @@ class FuncionarioController extends Controller
         }
 
         // Execute a consulta e obtenha os resultados
-        $resultados = $query->get();
+        $resultados = $query->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
+            ->select('funcionarios.id', 'funcionarios.nome_completo', 'funcionarios.cpf', 'funcionarios.tipo_usuario', 'funcionarios.email', 'empresas.nome_empresa')->get();
 
         // Retorne os resultados para a visualização
-        return response()->json(['Funcionarios: ' => $resultados]);
+        return response()->json(['Funcionarios:' => $resultados]);
     }
 }
