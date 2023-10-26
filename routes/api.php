@@ -47,5 +47,7 @@ Route::prefix('funcionario')->middleware('jwt.autenticacao')->group(function(){
 Route::prefix('contracheque')->middleware('jwt.autenticacao')->group(function(){
     Route::get('/', [ContrachequeController::class, 'index'])->name('contracheque-index');
     Route::get('/busca/{id}', [ContrachequeController::class, 'busca'])->name('contracheque-busca');
-    Route::post('/cadastro', [ContrachequeController::class, 'cadastro'])->name('contracheque-cadsatro');
+    Route::get('/buscaContracheque/{id}', [ContrachequeController::class, 'buscaContracheque'])->name('buscaContracheque-busca');
+    Route::post('/cadastro', [ContrachequeController::class, 'cadastro'])->name('contracheque-cadastro');
+    Route::get('/pendencias', [ContrachequeController::class, 'buscaPendencias'])->name('contracheque-pendencias');
 });
