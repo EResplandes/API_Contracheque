@@ -20,7 +20,7 @@ class Funcionario extends Authenticatable implements JWTSubject
     // Defina a tabela correspondente
     protected $table = 'funcionarios';
 
-    protected $fillable = ['cpf', 'password', 'nome_completo', 'tipo_usuario', 'fk_empresa'];
+    protected $fillable = ['cpf', 'password', 'nome_completo', 'tipo_usuario', 'fk_empresa', 'primeiro_acesso'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -97,5 +97,16 @@ class Funcionario extends Authenticatable implements JWTSubject
         ];
     }
 
+    public function rulesAltera(){
+        return [
+            'senha_nova' => ['required'] 
+        ];
+    }
+
+    public function feedbackAltera(){
+        return [
+            'senha_nova.required' => 'O campo senha nova é obrigatório!',
+        ];
+    }
 
 }

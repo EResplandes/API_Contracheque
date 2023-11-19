@@ -6,15 +6,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Empresa;
 use Illuminate\Support\Facades\Validator;
+use App\Services\EmpresaService;
 
 
 class EmpresaController extends Controller
 {
 
     protected $empresa;
+    protected $empresaService;
 
-    public function __construct(Empresa $empresa)
+    public function __construct(Empresa $empresa, EmpresaService $empresaService)
     {
+        $this->empresaService = $empresaService;
 
         $this->empresa = $empresa;
     }
@@ -22,9 +25,8 @@ class EmpresaController extends Controller
     public function index()
     {
 
-        $dados =  DB::table('empresas')->orderBy('id', 'asc')->get(); // Pegando os dados de todas empresas
-
-        return response()->json(['Empresas: ' => $dados]); // Retorando a resposta para a requisição
+        $dados = $this->empresaService->getAll();
+        return response()->json(['Empresas' => $dados]);
 
     }
 
@@ -40,13 +42,9 @@ class EmpresaController extends Controller
             return response()->json(['Erro' => $validator->errors()], 422); // Retornando o erro para a requisição
 
         } else {
-
-            // Armazenando as informações do request no array
-            $dados = [
-                'nome_empresa' => $request->input('nome_empresa'),
-            ];
-
-            DB::table('empresas')->insert($dados); // Inserindo no banco de dados
+            
+            $nome_empresa = $request->input('nome_empresa'); // Pega o nome da empresa
+            $this->empresaService->cadastrarEmpresa($nome_empresa); 
 
             return response()->json(['Mensagem' => 'Cadastro realizado com sucesso!']); // Retornando a respota de sucesso para a requisição
 
@@ -55,7 +53,6 @@ class EmpresaController extends Controller
 
     public function deleta($id = null)
     {
-
         if (is_null($id)) {
 
             return response()->json(['Erro: ' => 'O id é obrigatório']); // Verficando se o id está vazio
@@ -66,7 +63,7 @@ class EmpresaController extends Controller
 
         } else {
 
-            DB::table('empresas')->where('id', $id)->delete(); // Deletando a empresa de acordo com id
+            $this->empresaService->deletarEmpresa($id);
 
             return response()->json(['Mensagem: ' => 'Empresa deletada com sucesso!']); // Retornando resposa para a requisição
 
@@ -86,8 +83,7 @@ class EmpresaController extends Controller
 
         } else {
 
-            $dados = DB::table('empresas')->where('id', $id)->get(); // Busca os dados da empresa de acordo com id
-
+            $dados = $this->empresaService->buscarEmpresa($id); // Busca a empresa de acordo com o id
             return response()->json(['Dados: ' => $dados]); // Retornando os dados para a requisição
 
         }
@@ -117,11 +113,9 @@ class EmpresaController extends Controller
             } else {
 
                 // Armazenando as informações do request no array
-                $dados = [
-                    'nome_empresa' => $request->input('nome_empresa'),
-                ];
+                $nome_empresa = $request->input('nome_empresa');
 
-                DB::table('empresas')->where('id', $id)->update($dados); // Atualizando informações no banco de dados
+                $this->empresaService->editarEmpresa($id, $nome_empresa); // Edita o nome da empresa de acordo com o id
 
                 return response()->json(['Mensagem: ' => 'Dados atualizados com sucesso!']); // Retornando a respota de sucesso para a requisição
 
@@ -134,15 +128,8 @@ class EmpresaController extends Controller
 
             $nome_empresa = $request->input('nome_empresa');
 
-            $query = DB::table('empresas');
-
-            // Aplicar filtros com base nos valores fornecidos
-            if ($nome_empresa) {
-                $query->where('nome_empresa', 'LIKE', '%' . $nome_empresa . '%');
-            }
-
             // Execute a consulta e obtenha os resultados
-            $resultados = $query->get();
+            $resultados = $this->empresaService->filtrarEmpresas($nome_empresa);
 
             // Retorne os resultados para a visualização
             return response()->json(['Empresas: ' => $resultados]);

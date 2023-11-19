@@ -8,28 +8,25 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Funcionario;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Mail\EnvioSenhaProvisoriaMail;
-use Illuminate\Support\Facades\Mail;
+use App\Services\FuncionarioService;
 
 
 class FuncionarioController extends Controller
 {
 
     protected $funcionario;
+    protected $funcionarioService;
 
-    public function __construct(Funcionario $funcionario)
+    public function __construct(Funcionario $funcionario, FuncionarioService $funcionarioService)
     {
         $this->funcionario = $funcionario;
+        $this->funcionarioService = $funcionarioService;
     }
 
     public function index()
     {
 
-        // Query para buscar todos os dados com os funcionários e sua respectiva empresa
-        $dados = DB::table('funcionarios')
-            ->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
-            ->select('funcionarios.id', 'funcionarios.nome_completo', 'funcionarios.cpf', 'funcionarios.tipo_usuario', 'funcionarios.email', 'empresas.nome_empresa')
-            ->get();
+        $dados = $this->funcionarioService->getAll(); // Query para buscar todas os dados com os funcionários e sua respectiva empresa
 
         return response()->json(['Dados:' => $dados]); // Retornando a resposta para a requisição com dados de cada funcionário
 
@@ -64,9 +61,7 @@ class FuncionarioController extends Controller
                 'fk_empresa' => $request->input('fk_empresa')
             ];
 
-            Mail::to($email)->send(new EnvioSenhaProvisoriaMail($cpf, $senha)); // Enviando o e-mail e pessando os parametros de cpf e senha
-
-            DB::table('funcionarios')->insert($dados); // Inserindo no banco de dados
+            $this->funcionarioService->cadastro($email, $cpf, $senha, $dados); // Envia o e-mail com usuário e senha e cadastra o usuário
 
             return response()->json(['Mensagem: ' => 'Cadastro realizado com sucesso!']); // Retornando a respota de sucesso para a requisição
 
@@ -86,7 +81,7 @@ class FuncionarioController extends Controller
 
         } else {
 
-            DB::table('funcionarios')->where('id', $id)->delete(); // Deletando o funcionário de acordo com o id
+            $this->funcionarioService->deleta($id); // Deleta funcionário de acordo com o id
 
             return response()->json(['Mesagem:' => 'O funcionário foi deletado com sucesso!']); // Retornando resposa para a requisição
 
@@ -106,11 +101,7 @@ class FuncionarioController extends Controller
 
         } else {
 
-            $dados = [
-                'tipo_usuario' => 'Desativado',
-            ];
-
-            DB::table('funcionarios')->where('id', $id)->update($dados); // Atualizando o status do funcionário para desativado
+            $this->funcionarioService->desativa($id); // Desativa funcionário de acordo com o id
 
             return response()->json(['Mesagem:' => 'O funcionário foi desativado com sucesso!']); // Retornando resposa para a requisição
 
@@ -130,7 +121,7 @@ class FuncionarioController extends Controller
 
         } else {
 
-            $dados = DB::table('funcionarios')->where('id', $id)->get(); // Pegando informações do funcionário
+            $dados = $this->funcionarioService->busca($id);
 
             return response()->json(['Dados:' => $dados]); // Retornando resposa para a requisição
 
@@ -198,7 +189,7 @@ class FuncionarioController extends Controller
                     $dados['fk_empresa'] = $fk_empresa_campo;
                 }
 
-                DB::table('funcionarios')->where('id', $id)->update($dados); // Atualizando dados do funcionário no banco de dados de acordo com o di
+                $this->funcionarioService->edita($id, $dados); // Edita o funcionário
 
                 return response()->json(['Mensagem: ' => 'Dados atualizado com sucesso!']); // Retornando a respota de sucesso para a requisição
 
@@ -213,30 +204,56 @@ class FuncionarioController extends Controller
         $email = $request->input('email');
         $fk_empresa = $request->input('fk_empresa');
 
-        $query = DB::table('funcionarios');
-
-        // Aplicar filtros com base nos valores fornecidos
-        if ($nome_completo) {
-            $query->where('nome_completo', 'LIKE', '%' . $nome_completo . '%');
-        }
-
-        if ($cpf) {
-            $query->where('cpf', $cpf);
-        }
-
-        if ($email) {
-            $query->where('email', $email);
-        }
-
-        if ($fk_empresa) {
-            $query->where('fk_empresa', $fk_empresa);
-        }
-
-        // Execute a consulta e obtenha os resultados
-        $resultados = $query->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
-            ->select('funcionarios.id', 'funcionarios.nome_completo', 'funcionarios.cpf', 'funcionarios.tipo_usuario', 'funcionarios.email', 'empresas.nome_empresa')->get();
+        $resultados = $this->funcionarioService->filtro($nome_completo, $cpf, $email, $fk_empresa); // Filtra o funcionário
 
         // Retorne os resultados para a visualização
         return response()->json(['Funcionarios:' => $resultados]);
+    }
+
+    public function buscaAtivo()
+    {
+
+        $dados = $this->funcionarioService->buscaAtivo(); // Busca funcionário de acordo com o id
+
+        return response()->json(['Funcionarios:' => $dados]); // Retorna a resposta para a requisiçãos 
+
+    }
+
+    public function alteraSenha(Request $request, $id)
+    {
+
+        // Validandno todos os dados vindo do $request
+        $validator = Validator::make($request->all(), $this->funcionario->rulesAltera(), $this->funcionario->feedbackAltera());
+
+        // Se as informações passarem pelas validações ele registra no banco e retorna a mensagem de registrado com sucesso!
+        if ($validator->fails()) {
+
+            return response()->json(['Erro: ' => $validator->errors()], 422); // Retornando o erro para a requisição
+
+        } elseif (!is_numeric($id)) {
+
+            return response()->json(['Erro:' => $id]); // Retorna resposta para a API
+
+        } elseif (is_null($id)) {
+
+            return response()->json(['Erro:' => 'O campo id é obrigatório']); // Retorna resposta para a API
+
+        } else {
+
+            $dados = [
+                'senha_nova' => $request->input('senha_nova'),
+                'senha_confere' => $request->input('senha_confere')
+            ];
+
+            if ($dados['senha_nova'] != $dados['senha_confere']) {
+
+                return response()->json(['Erro:' => 'A senhas não coincidem!']);
+            } else {
+
+                $this->funcionarioService->alteraSenha($id, $dados); // Altera senha
+
+                return response()->json(['Mensagem:' => 'Senha alterada com sucesso!']);
+            }
+        }
     }
 }

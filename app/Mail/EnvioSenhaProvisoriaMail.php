@@ -35,7 +35,7 @@ class EnvioSenhaProvisoriaMail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Seu contracheque está disponível!',
+            subject: 'Novo Sistema de Contracheque do Grupo Rialma S/A!',
         );
     }
 

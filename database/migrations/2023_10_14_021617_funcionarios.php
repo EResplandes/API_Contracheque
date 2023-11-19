@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('tipo_usuario');
             $table->unsignedBigInteger('fk_empresa');
             $table->foreign('fk_empresa')->references('id')->on('empresas');
+            $table->boolean('primeiro_acesso');
             $table->timestamps();
         });
     }

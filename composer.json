@@ -6,7 +6,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
-        "guzzlehttp/guzzle": "^7.2",
+        "barryvdh/laravel-cors": "^3.0",
+        "barryvdh/laravel-dompdf": "^2.0",
+        "guzzlehttp/guzzle": "^7.8",
+        "ilovepdf/ilovepdf-php": "^1.2",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",

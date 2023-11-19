@@ -8,43 +8,36 @@ use App\Models\Contracheque;
 use Illuminate\Http\Request;
 use App\Mail\ContrachequeEnviadoMail;
 use Illuminate\Support\Facades\Mail;
+use App\Services\ContrachequeService;
 
 
 class ContrachequeController extends Controller
 {
 
     protected $contracheque;
+    protected $contrachequeService;
 
-    public function __construct(Contracheque $contracheque)
+    public function __construct(Contracheque $contracheque, ContrachequeService $contrachequeService)
     {
 
         $this->contracheque = $contracheque;
+
+        $this->contrachequeService = $contrachequeService;
     }
 
     public function index()
     {
 
-        // Query para buscar todos os dados com os funcionários e sua respectiva empresa
-        $dados = DB::table('contracheques')
-            ->join('funcionarios', 'funcionarios.id', '=', 'contracheques.fk_funcionario')
-            ->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
-            ->select('funcionarios.nome_completo', 'contracheques.mes', 'contracheques.ano', 'contracheques.status', 'contracheques.diretorio', 'empresas.nome_empresa')
-            ->get();
-
+        $dados = $this->contrachequeService->getAll(); // Query para buscar todos os dados com os funcionários e sua respectiva empresa
 
         return response()->json(['Informações' => $dados]); // Retornando resposta para a requisição
+
     }
 
     public function busca($id)
     {
 
-        // Query para buscar os contracheques de uma pessoa em expecifico
-        $dados = DB::table('contracheques')
-            ->join('funcionarios', 'funcionarios.id', '=', 'contracheques.fk_funcionario')
-            ->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
-            ->select('funcionarios.nome_completo', 'funcionarios.cpf', 'contracheques.mes', 'contracheques.ano', 'contracheques.status', 'contracheques.diretorio', 'empresas.nome_empresa')
-            ->where('contracheques.fk_funcionario', $id)
-            ->get();
+        $dados = $this->contrachequeService->busca($id); // Query para buscar os contracheques de acordo com o id
 
         return response()->json(['Contracheques: ' => $dados]); // Retornando resposta para a requisição
 
@@ -55,14 +48,7 @@ class ContrachequeController extends Controller
 
         $mesAtual = date('m'); // Obtém o número do mês atual (exemplo: "10" para outubro)
 
-        // Query para buscar os contracheques de uma pessoa em expecifico
-        $dados = DB::table('contracheques')
-            ->join('funcionarios', 'funcionarios.id', '=', 'contracheques.fk_funcionario')
-            ->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
-            ->select('funcionarios.nome_completo', 'funcionarios.cpf', 'contracheques.mes', 'contracheques.ano', 'contracheques.status', 'contracheques.diretorio', 'empresas.nome_empresa')
-            ->where('contracheques.fk_funcionario', $id)
-            ->where('mes', $mesAtual)
-            ->get();
+        $dados = $this->contrachequeService->buscaContracheque($id, $mesAtual); // Query para buscar os contracheques de uma pessoa
 
         if (count($dados) == 0) {
             return response()->json(false); // Retornando resposta para a requisição
@@ -74,26 +60,23 @@ class ContrachequeController extends Controller
     public function buscaPendencias()
     {
 
-        $mesAtual = date('m'); // Obtém o número do mês atual (exemplo: "10" para outubro)
+        $mesAtual = date('m');
 
-        // Query para buscar os contracheques de uma pessoa em expecifico
-        $dados = DB::table('contracheques')
-            ->join('funcionarios', 'funcionarios.id', '=', 'contracheques.fk_funcionario')
-            ->select('funcionarios.id', 'contracheques.status', 'contracheques.id')
-            ->where('mes', $mesAtual)
-            ->get();
+        $funcionariosSemComprovante = $this->contrachequeService->buscaPendencias($mesAtual); // Query responsável por buscar o funcionários que não tem contracheque lançado no mês atual
 
-        $funcionarios = DB::table('funcionarios')->select('id')->get(); // Pegando o id de todos os funcionarios
+        return response()->json(['Dados:' => $funcionariosSemComprovante]); // Retorna resposta para a requisição
 
-        // Extrair os IDs dos resultados das consultas como arrays
-        $dadosIDs = $dados->pluck('contracheques.fk_funcionario')->toArray();
-        $funcionariosIDs = $funcionarios->pluck('id')->toArray();
+    }
 
-        // Encontrar os IDs que estão em $funcionariosIDs, mas não em $dadosIDs
-        $idsAusentes = array_diff($funcionariosIDs, $dadosIDs);
+    public function totalPendencias()
+    {
 
-        return response()->json(['Pendencias:' => $idsAusentes]); // Retornando resposa para a API
-        
+        $mesAtual = date('m');
+
+        $total = $this->contrachequeService->totalPendencias($mesAtual);
+
+        return response()->json(['Total:' => $total]); // Retorna resposta para a requisição
+
     }
 
     public function cadastro(Request $request)
@@ -111,6 +94,7 @@ class ContrachequeController extends Controller
 
             $ano = $request->input('ano');
             $mes = $request->input('mes');
+            $fk_funcionario = $request->input('fk_funcionario');
 
             $directory = "Contracheques/{$ano}/{$mes}"; // Definindo um diretório para salvar arquivos
 
@@ -124,12 +108,7 @@ class ContrachequeController extends Controller
                 'fk_funcionario' => $request->input('fk_funcionario'),
             ];
 
-            $email = DB::table('funcionarios')->where('id', $request->input('fk_funcionario'))->select('email')->get(); // Pegando o e-mail para enviar notificação
-
-            DB::table('contracheques')->insert($dados); // Inserindo os dados no bando de dados
-
-
-            Mail::to($email)->send(new ContrachequeEnviadoMail($mes, $ano)); // Enviando o e-mail e pessando os parametros de mes e ano
+            $this->contrachequeService->cadastro($dados, $mes, $ano);
 
             return response()->json(['Mensagem' => 'Contracheque cadastrado com sucesso!']); // Retornando a resposta para a requisição
 
@@ -149,9 +128,29 @@ class ContrachequeController extends Controller
 
         } else {
 
-            DB::table('contracheques')->where('id', $id)->delete(); // Deletando o contracheque
+            $this->contrachequeService->deleta($id); // Deleta o contracheque de acordo com o id
 
             return response()->json(['Mensagem: ' => 'Contracheque deletado com sucesso!']); // Retornando resposta para a requisição
+
+        }
+    }
+
+    public function atualizaStatus($id)
+    {
+
+        if (is_null($id)) {
+
+            return response()->json(['Erro:' => 'O id é obrigatório']); // Verificando se o id está vazio
+
+        } elseif (!is_numeric($id)) {
+
+            return response()->json(['Erro:' => 'O id deve ser um interio!']); // Verificando se o id é um inteiro
+
+        } else {
+
+            $this->contrachequeService->atualizaStatus($id);
+
+            return response()->json(['Mensagem: ' => 'Contracheque Visualizado com Sucesso!!']); // Retornando resposta para a requisição
 
         }
     }
