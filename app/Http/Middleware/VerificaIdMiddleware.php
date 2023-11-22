@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class VerificaIdMiddleware
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        $id = $request->route('id'); // Substitua 'id' pelo nome do parâmetro na sua rota
+
+        if (!isset($id) || !is_numeric($id)) {
+            return response()->json(['error' => 'O parâmetro de ID deve ser um inteiro não nulo.'], 400);
+        }
+
+        return $next($request);
+    }
+}

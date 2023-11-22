@@ -18,6 +18,7 @@ class ContrachequeService
             ->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
             ->select('funcionarios.nome_completo', 'contracheques.mes', 'contracheques.ano', 'contracheques.status', 'contracheques.diretorio', 'empresas.nome_empresa')
             ->get();
+
     }
 
     public function busca($id)
@@ -30,10 +31,13 @@ class ContrachequeService
             ->select('funcionarios.nome_completo', 'funcionarios.cpf', 'contracheques.id', 'contracheques.mes', 'contracheques.ano', 'contracheques.status', 'contracheques.diretorio', 'empresas.nome_empresa')
             ->where('contracheques.fk_funcionario', $id)
             ->get();
+
     }
 
-    public function buscaContracheque($id, $mesAtual)
+    public function buscaContracheque($id)
     {
+
+        $mesAtual = date('m'); // Obtém o número do mês atual (exemplo: "10" para outubro)
 
         // Query para buscar os contracheques de uma pessoa
         return DB::table('contracheques')
@@ -43,10 +47,12 @@ class ContrachequeService
             ->where('contracheques.fk_funcionario', $id)
             ->where('mes', $mesAtual)
             ->get();
+
     }
 
-    public function buscaPendencias($mesAtual)
+    public function buscaPendencias()
     {
+        $mesAtual = date('m');
 
         // Query responsável por buscar o funcionários que não tem contracheque lançado no mês atual
         return DB::table('funcionarios')
@@ -58,10 +64,13 @@ class ContrachequeService
             })
             ->select('id', 'nome_completo')
             ->get();
+            
     }
 
-    public function totalPendencias($mesAtual)
+    public function totalPendencias()
     {
+
+        $mesAtual = date('m'); // Pega mês atual
 
         // Query responsável por buscar a quantidade de funcionários que não tem contracheque lançado no mês atual
         return DB::table('funcionarios')
@@ -79,7 +88,7 @@ class ContrachequeService
 
         $email = DB::table('funcionarios')->where('id', $dados['fk_funcionario'])->select('email')->get(); // Pegando o e-mail para enviar notificação
         
-        DB::table('contracheques')->insert($dados); // Inserindo os dados no bando de dados
+        DB::table('contracheques')->insert($dados); // Inserindo os dados no banco de dados
 
         Mail::to($email)->send(new ContrachequeEnviadoMail($mes, $ano)); // Enviando o e-mail e pessando os parametros de mes e ano
 

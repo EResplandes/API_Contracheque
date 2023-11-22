@@ -31,9 +31,9 @@ Route::prefix('autenticacao')->group(function(){
 Route::prefix('empresa')->middleware('jwt.autenticacao')->group(function(){
     Route::get('/', [EmpresaController::class, 'index'])->name('empresa-index');
     Route::post('/cadastro', [EmpresaController::class, 'cadastro'])->name('empresa-cadastro');
-    Route::delete('/deleta/{id}', [EmpresaController::class, 'deleta'])->name('empresa-deleta');
-    Route::get('/busca/{id}', [EmpresaController::class, 'busca'])->name('empresa-busca');
-    Route::put('/edita/{id}', [EmpresaController::class, 'edita'])->name('empresa-edita');
+    Route::delete('/deleta/{id}', [EmpresaController::class, 'deleta'])->middleware('verify.id')->name('empresa-deleta');
+    Route::get('/busca/{id}', [EmpresaController::class, 'busca'])->middleware('verify.id')->name('empresa-busca');
+    Route::put('/edita/{id}', [EmpresaController::class, 'edita'])->middleware('verify.id')->name('empresa-edita');
     Route::post('/filtro', [EmpresaController::class, 'filtro'])->name('empresa-filtro');
 });
 
@@ -41,24 +41,20 @@ Route::prefix('funcionario')->middleware('jwt.autenticacao')->group(function(){
     Route::get('/', [FuncionarioController::class, 'index'])->name('funcionario-index');
     Route::get('/ativo',[FuncionarioController::class, 'buscaAtivo'])->name('funcionario-ativo');
     Route::post('/cadastro', [FuncionarioController::class, 'cadastro'])->name('funcionario-cadastro');
-    Route::delete('/deleta/{id}', [FuncionarioController::class, 'deleta'])->name('funcionario-deleta');
-    Route::put('/desativa/{id}', [FuncionarioController::class, 'desativa'])->name('funcionario-desativa');
-    Route::get('/busca/{id}', [FuncionarioController::class, 'busca'])->name('funcionario-busca');
-    Route::put('/edita/{id}', [FuncionarioController::class, 'edita'])->name('funcionario-edita');
+    Route::delete('/deleta/{id}', [FuncionarioController::class, 'deleta'])->middleware('verify.id')->name('funcionario-deleta');
+    Route::put('/desativa/{id}', [FuncionarioController::class, 'desativa'])->middleware('verify.id')->name('funcionario-desativa');
+    Route::get('/busca/{id}', [FuncionarioController::class, 'busca'])->middleware('verify.id')->name('funcionario-busca');
+    Route::put('/edita/{id}', [FuncionarioController::class, 'edita'])->middleware('verify.id')->name('funcionario-edita');
     Route::post('/filtro', [FuncionarioController::class, 'filtro'])->name('funcionario-filtro');
-    Route::post('/alteraSenha/{id}', [FuncionarioController::class, 'alteraSenha'])->name('funcionario-altera');
+    Route::post('/alteraSenha/{id}', [FuncionarioController::class, 'alteraSenha'])->middleware('verify.id')->name('funcionario-altera');
 });
 
 Route::prefix('contracheque')->middleware('jwt.autenticacao')->group(function(){
     Route::get('/', [ContrachequeController::class, 'index'])->name('contracheque-index');
-    Route::get('/busca/{id}', [ContrachequeController::class, 'busca'])->name('contracheque-busca');
-    Route::get('/buscaContracheque/{id}', [ContrachequeController::class, 'buscaContracheque'])->name('buscaContracheque-busca');
+    Route::get('/busca/{id}', [ContrachequeController::class, 'busca'])->middleware('verify.id')->name('contracheque-busca');
+    Route::get('/buscaContracheque/{id}', [ContrachequeController::class, 'buscaContracheque'])->middleware('verify.id')->name('buscaContracheque-busca');
     Route::post('/cadastro', [ContrachequeController::class, 'cadastro'])->name('contracheque-cadastro');
     Route::get('/pendencias', [ContrachequeController::class, 'buscaPendencias'])->name('contracheque-pendencias');
     Route::get('/total', [ContrachequeController::class, 'totalPendencias'])->name('contracheque-total');
-    Route::get('/atualizaStatus/{id}', [ContrachequeController::class, 'atualizaStatus'])->name('contracheque-atualizaStatus');
-});
-
-Route::prefix('pdf')->middleware('jwt.autenticacao')->group(function(){
-    Route::post('/', [PdfController::class, 'dividePDF'])->name('pdf-divide');
+    Route::get('/atualizaStatus/{id}', [ContrachequeController::class, 'atualizaStatus'])->middleware('verify.id')->name('contracheque-atualizaStatus');
 });
