@@ -18,7 +18,6 @@ class ContrachequeService
             ->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
             ->select('funcionarios.nome_completo', 'contracheques.mes', 'contracheques.ano', 'contracheques.status', 'contracheques.diretorio', 'empresas.nome_empresa')
             ->get();
-
     }
 
     public function busca($id)
@@ -31,7 +30,6 @@ class ContrachequeService
             ->select('funcionarios.nome_completo', 'funcionarios.cpf', 'contracheques.id', 'contracheques.mes', 'contracheques.ano', 'contracheques.status', 'contracheques.diretorio', 'empresas.nome_empresa')
             ->where('contracheques.fk_funcionario', $id)
             ->get();
-
     }
 
     public function buscaContracheque($id)
@@ -40,7 +38,7 @@ class ContrachequeService
         $mesAtual = date('m'); // Obtém o número do mês atual (exemplo: "10" para outubro)
 
         // Query para buscar os contracheques de uma pessoa
-        return DB::table('contracheques')
+        $dados = DB::table('contracheques')
             ->join('funcionarios', 'funcionarios.id', '=', 'contracheques.fk_funcionario')
             ->join('empresas', 'empresas.id', '=', 'funcionarios.fk_empresa')
             ->select('funcionarios.nome_completo', 'funcionarios.cpf', 'contracheques.id', 'contracheques.mes', 'contracheques.ano', 'contracheques.status', 'contracheques.diretorio', 'empresas.nome_empresa')
@@ -48,6 +46,11 @@ class ContrachequeService
             ->where('mes', $mesAtual)
             ->get();
 
+        if (count($dados) == 0) {
+            return response()->json(false); // Retornando resposta para a requisição
+        } else {
+            return response()->json(true); // Retornando resposta para a requisição
+        }
     }
 
     public function buscaPendencias()
@@ -64,7 +67,6 @@ class ContrachequeService
             })
             ->select('id', 'nome_completo')
             ->get();
-            
     }
 
     public function totalPendencias()
@@ -81,29 +83,45 @@ class ContrachequeService
                     ->where('mes', $mesAtual);
             })
             ->count();
-
     }
 
-    public function cadastro($dados, $mes, $ano){
+    public function cadastro($request)
+    {
+
+        $ano = $request->input('ano');
+        $mes = $request->input('mes');
+
+        $directory = "Contracheques/{$ano}/{$mes}"; // Definindo um diretório para salvar arquivos
+
+        $urn_contracheque = $request->file('diretorio')->store($directory, 'public'); // Salvando o contracheq
+
+        $dados = [
+            'mes' => $request->input('mes'),
+            'ano' => $request->input('ano'),
+            'status' => '0',
+            'diretorio' => $urn_contracheque,
+            'fk_funcionario' => $request->input('fk_funcionario'),
+        ];
 
         $email = DB::table('funcionarios')->where('id', $dados['fk_funcionario'])->select('email')->get(); // Pegando o e-mail para enviar notificação
-        
+
         DB::table('contracheques')->insert($dados); // Inserindo os dados no banco de dados
 
         Mail::to($email)->send(new ContrachequeEnviadoMail($mes, $ano)); // Enviando o e-mail e pessando os parametros de mes e ano
 
     }
 
-    public function deleta($id){
+    public function deleta($id)
+    {
 
         DB::table('contracheques')->where('id', $id)->delete(); // Deletando o contracheque
 
     }
 
-    public function atualizaStatus($id){
+    public function atualizaStatus($id)
+    {
 
         DB::table('contracheques')->where('id', $id)->update(['status' => 1]); // Coloca o status como visualizado
 
     }
-
 }
