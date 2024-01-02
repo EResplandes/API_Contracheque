@@ -79,7 +79,7 @@ class ContrachequeController extends Controller
     public function atualizaStatus($id)
     {
 
-        $this->contrachequeService->atualizaStatus($id);
+        $this->contrachequeService->atualizaStatus($id); // Query responsável por atualizar o status de não visualizado para visualizado
         return response()->json(['Mensagem: ' => 'Contracheque Visualizado com Sucesso!!']); // Retornando resposta para a requisição
 
     }

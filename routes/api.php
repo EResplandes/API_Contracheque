@@ -1,14 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\ContrachequeController;
-use App\Http\Controllers\PdfController;
-use App\Models\Contracheque;
-use App\Models\Funcionario;
 
 /*
 |--------------------------------------------------------------------------
