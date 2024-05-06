@@ -47,7 +47,7 @@ class FuncionarioController extends Controller
             'email' => $request->input('email'),
             'cpf' => $request->input('cpf'),
             'password' => Hash::make($senha),
-            'tipo_usuario' => strtoupper($request->input('tipo_usuario')),
+            'tipo_usuario' => 'FUNCIONARIO',
             'fk_empresa' => $request->input('fk_empresa')
         ];
 

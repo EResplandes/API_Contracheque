@@ -25,7 +25,7 @@ class EmpresaController extends Controller
         {
 
                 $dados = $this->empresaService->getAll();
-                return response()->json(['Empresas' => $dados]);
+                return response()->json(['empresas' => $dados]);
         }
 
         public function cadastro(EmpresaRequest $request)
@@ -34,7 +34,7 @@ class EmpresaController extends Controller
                 $nome_empresa = $request->input('nome_empresa'); // Pega o nome da empresa
                 $this->empresaService->cadastrarEmpresa($nome_empresa);
 
-                return response()->json(['Mensagem' => 'Cadastro realizado com sucesso!']); // Retornando a respota de sucesso para a requisição
+                return response()->json(['resposta' => 'Cadastro realizado com sucesso!']); // Retornando a respota de sucesso para a requisição
 
         }
 
@@ -42,7 +42,7 @@ class EmpresaController extends Controller
         {
 
                 $this->empresaService->deletarEmpresa($id);
-                return response()->json(['Mensagem: ' => 'Empresa deletada com sucesso!']); // Retornando resposa para a requisição
+                return response()->json(['resposta: ' => 'Empresa deletada com sucesso!']); // Retornando resposa para a requisição
 
         }
 
@@ -50,7 +50,7 @@ class EmpresaController extends Controller
         {
 
                 $dados = $this->empresaService->buscarEmpresa($id); // Busca a empresa de acordo com o id
-                return response()->json(['Dados: ' => $dados]); // Retornando os dados para a requisição
+                return response()->json(['empresas' => $dados]); // Retornando os dados para a requisição
 
         }
 
@@ -61,7 +61,7 @@ class EmpresaController extends Controller
                 
                 $this->empresaService->editarEmpresa($id, $nome_empresa); // Edita o nome da empresa de acordo com o id
 
-                return response()->json(['Mensagem: ' => 'Dados atualizados com sucesso!']); // Retornando a respota de sucesso para a requisição
+                return response()->json(['resposta' => 'Dados atualizados com sucesso!']); // Retornando a respota de sucesso para a requisição
 
         }
 
@@ -74,6 +74,6 @@ class EmpresaController extends Controller
                 $resultados = $this->empresaService->filtrarEmpresas($nome_empresa);
 
                 // Retorne os resultados para a visualização
-                return response()->json(['Empresas: ' => $resultados]);
+                return response()->json(['empresas' => $resultados]);
         }
 }

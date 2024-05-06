@@ -31,8 +31,8 @@ class EmpresaRequest extends FormRequest
     public function messages()
     {
         return [
-            "nome_empresa.required" => "O campo 'nome_empresa' é obrigatório!",
-            "nome_empresa.string" => "O campo 'nome_empresa' é o tipo texto!",
+            "nome_empresa.required" => "O campo EMPRESA é obrigatório!",
+            "nome_empresa.string" => "O campo EMPRESA é o tipo texto!",
             "nome_empresa.unique" => "Essa empresa já está cadastrada!",
         ];
     }
